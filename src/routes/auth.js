@@ -10,10 +10,16 @@ router.post('/login', passport.authenticate('local'), (req, res) => {
   res.status(200).json({ user: userDTO });
 });
 
-router.get('/profile', (req, res) => {
-});
-
-router.put('/update', (req, res) => {
+router.post('/register', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const userDAO = new UserDAO();
+    const newUser = await userDAO.createUser(username, hashedPassword);
+    res.status(201).json({ user: new UserDTO(newUser) });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 module.exports = router;
